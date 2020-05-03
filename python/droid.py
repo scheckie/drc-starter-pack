@@ -10,11 +10,14 @@ GAZEBO_VM_IP = '192.168.98.129'
 client = Ros(host=GAZEBO_VM_IP, port=9090)
 client.run()
 
+# consume frames from the mjpeg stream because rosbridge (websocket) encodes the binary
+# images as b64, causing a huge performance hit.
 camera = cv2.VideoCapture(f"http://{GAZEBO_VM_IP}:8080/stream?topic=/droid/camera/image_raw")
 
 drive = Topic(client, '/cmd_vel', 'geometry_msgs/Twist')
 drive.advertise()
 
+# tell the robot to drive around in a circle forever
 drive.publish(Message({
     'linear': {'x': 0.1},
     'angular': {'z': 0.5}
